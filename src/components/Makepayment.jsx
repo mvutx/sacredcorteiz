@@ -1,115 +1,150 @@
 import axios from 'axios';
-import React, { useState } from 'react'
+import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Loader from './Loader';
 import Footer from './Footer';
 
 const Makepayment = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
 
-    // destructure the details passed from the Getproducts component
-    // The useLoacation hook allows us to get/destructure the properties passed from the previous component.
-    const {product} = useLocation().state || {}
+  // Handle single product or cart
+  const initialProducts = location.state?.product
+    ? [{ ...location.state.product, quantity: 1 }] // single product
+    : location.state?.cart?.map(item => ({ ...item, quantity: 1 })) || []; // cart
 
-    // declare the navigate hook
-    const navigate = useNavigate()
+  const [products, setProducts] = useState(initialProducts);
+  const [number, setNumber] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState("");
+  const [error, setError] = useState("");
 
-    // console.log("The details passed from getproducts are: ",product)
-    // below we specify the image base url
-    const img_url = "https://kivuti.alwaysdata.net/static/images/"
+  const img_url = "https://kivuti.alwaysdata.net/static/images/";
 
-    // initialize hooks to manage the state of your application
-    const [number, setNumber] = useState("")
-    const [loading, setLoading] = useState(false);
-    const [success, setSuccess] = useState("");
-    const [error, setError] = useState("");
+  if (products.length === 0) {
+    return (
+      <div className='container py-5 text-center'>
+        <h3>Your cart is empty 🛒</h3>
+        <button className='btn btn-primary mt-3' onClick={() => navigate('/')}>
+          Back to Shop
+        </button>
+      </div>
+    );
+  }
 
-    // create a function that will handle the submit action
-    const handlesubmit = async (e) =>{
-        // prevent the site from reloading
-        e.preventDefault()
+  // Function to increase or decrease quantity
+  const updateQuantity = (id, delta) => {
+    setProducts(prev =>
+      prev.map(item => 
+        item.id === id 
+          ? { ...item, quantity: Math.max(1, item.quantity + delta) } 
+          : item
+      )
+    );
+  };
 
-        // update the loading hook
-        setLoading(true)
+  const totalCost = products.reduce(
+    (acc, item) => acc + item.product_cost * item.quantity,
+    0
+  );
 
-        try{
-            // create a form data object
-            const formdata = new FormData()
+  const handlesubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setSuccess("");
+    setError("");
 
-            // append the data to the form data
-            formdata.append("phone", number)
-            formdata.append("amount", product.product_cost)
+    try {
+      const formdata = new FormData();
+      formdata.append("phone", number);
+      formdata.append("amount", totalCost);
 
-            const response = await axios.post("https://kbenkamotho.alwaysdata.net/api/mpesa_payment", formdata)
+      const response = await axios.post(
+        "https://kivuti.alwaysdata.net/api/mpesa_payment",
+        formdata
+      );
 
-            // set loading back to default
-            setLoading(false)
-
-            // update the success hook with the message
-            setSuccess(response.data.message)
-        }
-        catch(error){
-            // if there is an error respond to error
-            setLoading(false)
-
-            // update the error hook with the error message
-            setError(error.message)
-        }
+      setLoading(false);
+      setSuccess(response.data.message);
+    } catch (err) {
+      setLoading(false);
+      setError(err.message);
     }
-
+  };
 
   return (
-    <div className='row justify-content-center'>
-        {/* <button className='btn btn-outline-primary'> Back to Product </button> */}
+    <div className='container py-4'>
+      <h1 className="text-success mb-4">Make Payment - Lipa na M-Pesa</h1>
 
-        <h1 className="text-success">Make Payment - Lipa na M-Pesa</h1>
+      <button
+        className='btn btn-primary mb-3'
+        onClick={() => navigate("/")}
+      >
+        &larr; Back
+      </button>
 
-        <div className="col-md-1">
-            <input type="button"
-            className="btn btn-primary"
-            value="<- Back"
-            onClick={() => navigate("/") } />
-        </div>
-
-        <div className="col-md-6 card shadow p-4">
-
-
-
-            <img src={img_url + product.product_photo} alt="Product name" className='product_img'/>
-
-            <div className="card-body ">
-                <h2 className="text-info"> {product.product_name} </h2>
-
-                <p className="text-dark"> {product.product_description} </p>
-
-                <h3 className="text-warning">Kes {product.product_cost} </h3> <br />
-
-                <form onSubmit={handlesubmit}>
-
-                     {/* bind the loading hook */}
-                    {loading && <Loader />}
-
-                    <h3 className="text-success"> {success} </h3>
-                    <h4 className="text-danger"> {error} </h4>
-
-
-                    <input type="number"
-                    className='form-control'
-                    placeholder='Enter the Phone number 254XXXXXXX'
-                    required
-                    value={number}
-                    onChange={(e) => setNumber(e.target.value)} /> <br />
-
-                    {/* {number} */}
-
-                    <input type="submit"
-                    value="Make Payment"
-                    className='btn btn-success' />
-                </form>
+      {/* ✅ Product list with quantity selector */}
+      <div className="card shadow p-3 mb-3">
+        {products.map((item) => (
+          <div className="d-flex align-items-center mb-2" key={item.id}>
+            <img
+              src={img_url + item.product_photo}
+              alt={item.product_name}
+              style={{ height: "60px", width: "60px", objectFit: "cover", marginRight: "10px" }}
+            />
+            <div className="flex-grow-1">
+              <strong>{item.product_name}</strong>
+              <div className="text-warning">
+                Kes {item.product_cost} × {item.quantity} = Kes {item.product_cost * item.quantity}
+              </div>
             </div>
-        </div>
-        <Footer/>
+            <div className="d-flex align-items-center">
+              <button
+                className="btn btn-sm btn-outline-secondary me-1"
+                onClick={() => updateQuantity(item.id, -1)}
+              >
+                -
+              </button>
+              <span>{item.quantity}</span>
+              <button
+                className="btn btn-sm btn-outline-secondary ms-1"
+                onClick={() => updateQuantity(item.id, 1)}
+              >
+                +
+              </button>
+            </div>
+          </div>
+        ))}
+
+        <hr />
+        <h5>Total: Kes {totalCost}</h5>
+      </div>
+
+      {/* ✅ Payment form */}
+      <form onSubmit={handlesubmit} className="card shadow p-3">
+        {loading && <Loader />}
+        <h3 className="text-success">{success}</h3>
+        <h4 className="text-danger">{error}</h4>
+
+        <input
+          type="number"
+          className='form-control mb-3'
+          placeholder='Enter Phone number 254XXXXXXX'
+          required
+          value={number}
+          onChange={(e) => setNumber(e.target.value)}
+        />
+
+        <input
+          type="submit"
+          value="Make Payment"
+          className='btn btn-success w-100'
+        />
+      </form>
+
+      <Footer />
     </div>
-  )
-}
+  );
+};
 
 export default Makepayment;

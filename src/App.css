@@ -254,3 +254,7 @@ span:hover {
     transform: translateY(-12px);
   }
 }
+@media (max-width: 768px){
+  .cart-table { display: block; }
+  .cart-table tr { display: block; margin-bottom: 10px; }
+}

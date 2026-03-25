@@ -27,7 +27,7 @@ const Footer = () => {
           </div>
 
           {/* Social Media */}
-          <div className="col-md-4 mb-4">
+          <div className="col-md-4 mb-4">z
             <h5>Follow Us</h5>
             <div>
               <a href="#" className="text-light me-3">Instagram</a>
