@@ -10,7 +10,7 @@ import Makepayment from './components/Makepayment';
 import Notfound from './components/Notfound';
 import Aboutus from './components/Aboutus';
 import Cart from './components/Cart';
-import logo from './assets/logo.png.jpg'; // ✅ Logo file
+import logo from './assets/sacredlogo.png'; // ✅ Logo file
 import { CartProvider, useCart } from './Addcart'; // ✅ CartProvider & useCart
 
 // ✅ Cart Icon Component
@@ -60,7 +60,7 @@ function App() {
         
         <div className="App">
           <header className='App-header'>
-            <h2>Welcome to corteiz thrifters</h2>
+            <h2>Welcome to Sacred Vanity Online Shop</h2>
           </header>
           <Routes>
             <Route path='/signup' element={<Signup/>} />
