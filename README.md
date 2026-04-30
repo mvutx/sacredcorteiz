@@ -70,4 +70,8 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
 # corteizthrifters
 # corteizthrifters1
+<<<<<<< HEAD
 # sacredvanity
+=======
+# sacredvanity1
+>>>>>>> 39257b0 (first commit)
