@@ -29,6 +29,8 @@ const CartIcon = () => {
 };
 
 function App() {
+  const savedUser = localStorage.getItem("user");
+const user = savedUser ? JSON.parse(savedUser) : null;
   return (
     <Router>
       {/* ✅ Wrap entire app in CartProvider */}

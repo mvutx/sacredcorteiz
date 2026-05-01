@@ -1,9 +1,9 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 
 // Create Context
-const CartContext = createContext();
+const CartContext = createContext(null);
 
-// Hook to use cart safely
+// Hook
 export const useCart = () => {
   const context = useContext(CartContext);
   if (!context) {
@@ -14,47 +14,95 @@ export const useCart = () => {
 
 // Provider
 export const CartProvider = ({ children }) => {
-  const [cart, setCart] = useState([]);
 
-  // ✅ Add to cart (handles quantity correctly)
+  // =========================
+  // LOAD CART FROM LOCALSTORAGE
+  // =========================
+  const [cart, setCart] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem("cart")) || [];
+    } catch (err) {
+      return [];
+    }
+  });
+
+  // =========================
+  // SAVE CART ON CHANGE
+  // =========================
+  useEffect(() => {
+    localStorage.setItem("cart", JSON.stringify(cart));
+  }, [cart]);
+
+  // =========================
+  // ADD TO CART
+  // =========================
   const addToCart = (product) => {
-    if (!product || !product.id) return;
+    if (!product) return;
+
+    const id = product.id || product.product_id;
+
+    if (!id) {
+      console.warn("Product missing ID:", product);
+      return;
+    }
 
     setCart((prev) => {
-      const existingItem = prev.find((item) => item.id === product.id);
+      const existingItem = prev.find((item) => item.id === id);
 
       if (existingItem) {
         return prev.map((item) =>
-          item.id === product.id
-            ? { ...item, quantity: (item.quantity || 1) + 1 }
+          item.id === id
+            ? {
+                ...item,
+                quantity: (item.quantity ?? 1) + 1,
+              }
             : item
         );
       }
 
-      return [...prev, { ...product, quantity: 1 }];
+      return [
+        ...prev,
+        {
+          ...product,
+          id,
+          quantity: 1,
+        },
+      ];
     });
   };
 
-  // ✅ Remove one item unit safely
+  // =========================
+  // REMOVE ONE ITEM
+  // =========================
   const removeFromCart = (id) => {
     setCart((prev) =>
       prev
         .map((item) =>
           item.id === id
-            ? { ...item, quantity: (item.quantity || 1) - 1 }
+            ? {
+                ...item,
+                quantity: (item.quantity ?? 1) - 1,
+              }
             : item
         )
         .filter((item) => item.quantity > 0)
     );
   };
 
-  // ✅ Remove item completely (extra helper)
+  // =========================
+  // DELETE COMPLETELY
+  // =========================
   const deleteFromCart = (id) => {
     setCart((prev) => prev.filter((item) => item.id !== id));
   };
 
-  // ✅ Clear cart
-  const clearCart = () => setCart([]);
+  // =========================
+  // CLEAR CART
+  // =========================
+  const clearCart = () => {
+    setCart([]);
+    localStorage.removeItem("cart");
+  };
 
   return (
     <CartContext.Provider
@@ -63,7 +111,7 @@ export const CartProvider = ({ children }) => {
         addToCart,
         removeFromCart,
         deleteFromCart,
-        clearCart
+        clearCart,
       }}
     >
       {children}
