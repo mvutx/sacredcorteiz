@@ -3,51 +3,79 @@ import React, { useState, useEffect } from "react";
 const Prompt = () => {
   const [showPrompt, setShowPrompt] = useState(false);
   const [email, setEmail] = useState("");
-  const [loading, setLoading] = useState("");
+  const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
 
-  // Show the prompt automatically after 2 seconds, only if not seen before
+  // =========================
+  // SHOW ONLY IF NOT SUBSCRIBED
+  // =========================
   useEffect(() => {
-    const hasSeenPrompt = localStorage.getItem("seenPrompt");
-    if (!hasSeenPrompt) {
-      const timer = setTimeout(() => {
-        setShowPrompt(true);
-      }, 2000);
-      return () => clearTimeout(timer);
+    const isSubscribed = localStorage.getItem("isSubscribed");
+
+    if (isSubscribed === "true") {
+      return; // never show popup again
     }
+
+    const timer = setTimeout(() => {
+      setShowPrompt(true);
+    }, 2000);
+
+    return () => clearTimeout(timer);
   }, []);
 
+  // =========================
+  // SUBSCRIBE HANDLER
+  // =========================
   const handleSubscribe = async (e) => {
     e.preventDefault();
-    setLoading("Submitting...");
+
+    if (loading) return;
+
+    setLoading(true);
     setError("");
     setSuccess("");
 
     try {
-      // Replace this with real backend call
-      // await axios.post("/api/subscribe", { email });
+      const formData = new FormData();
+      formData.append("email", email);
 
-      // simulate success
-      setLoading("");
-      setSuccess("Subscribed successfully! Thank you.");
+      const response = await fetch(
+        "https://sacredcorteiz.onrender.com/api/subscribe",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Subscription failed");
+      }
+
+      setSuccess(data.message || "Subscribed successfully!");
       setEmail("");
 
-      // Save that user has seen/done the prompt
-      localStorage.setItem("seenPrompt", "true");
+      // ✅ MARK USER AS SUBSCRIBED (IMPORTANT PART)
+      localStorage.setItem("isSubscribed", "true");
 
-      setTimeout(() => setSuccess(""), 5000);
-      setShowPrompt(false);
+      setTimeout(() => {
+        setSuccess("");
+        setShowPrompt(false);
+      }, 3000);
     } catch (err) {
-      setLoading("");
-      setError("Failed to subscribe. Try again later.");
-      setTimeout(() => setError(""), 5000);
+      setError(err.message);
+
+      setTimeout(() => setError(""), 4000);
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleClose = () => {
     setShowPrompt(false);
-    localStorage.setItem("seenPrompt", "true"); // mark as seen
+    // DO NOT mark as subscribed — just temporary close
   };
 
   if (!showPrompt) return null;
@@ -75,7 +103,6 @@ const Prompt = () => {
           width: "90%",
           maxWidth: "400px",
           textAlign: "center",
-          boxShadow: "0 5px 15px rgba(0,0,0,0.3)",
           position: "relative",
         }}
       >
@@ -85,9 +112,9 @@ const Prompt = () => {
             position: "absolute",
             top: "10px",
             right: "15px",
-            background: "transparent",
             border: "none",
-            fontSize: "18px",
+            background: "transparent",
+            fontSize: "22px",
             cursor: "pointer",
           }}
         >
@@ -95,9 +122,16 @@ const Prompt = () => {
         </button>
 
         <h3>Subscribe to our Emails</h3>
-        <p>Get updates and offers directly in your inbox.</p>
+        <p>Get updates and exclusive offers.</p>
 
-        <form onSubmit={handleSubscribe} style={{ marginTop: "15px" }}>
+        <form
+          onSubmit={handleSubscribe}
+          style={{
+            display: "flex",
+            gap: "8px",
+            marginTop: "15px",
+          }}
+        >
           <input
             type="email"
             placeholder="Enter your email"
@@ -106,30 +140,34 @@ const Prompt = () => {
             onChange={(e) => setEmail(e.target.value)}
             style={{
               padding: "10px",
-              width: "80%",
-              marginRight: "5px",
+              flex: 1,
               borderRadius: "5px",
               border: "1px solid #ccc",
             }}
           />
+
           <button
             type="submit"
+            disabled={loading}
             style={{
               padding: "10px 15px",
               borderRadius: "5px",
               border: "none",
-              backgroundColor: "#007bff",
+              backgroundColor: loading ? "gray" : "#007bff",
               color: "white",
               cursor: "pointer",
             }}
           >
-            Subscribe
+            {loading ? "..." : "Subscribe"}
           </button>
         </form>
 
-        {loading && <p style={{ color: "orange", marginTop: "10px" }}>{loading}</p>}
-        {success && <p style={{ color: "green", marginTop: "10px" }}>{success}</p>}
-        {error && <p style={{ color: "red", marginTop: "10px" }}>{error}</p>}
+        {success && (
+          <p style={{ color: "green", marginTop: "10px" }}>{success}</p>
+        )}
+        {error && (
+          <p style={{ color: "red", marginTop: "10px" }}>{error}</p>
+        )}
       </div>
     </div>
   );
