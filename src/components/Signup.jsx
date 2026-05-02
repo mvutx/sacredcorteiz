@@ -12,13 +12,15 @@ const Signup = () => {
   const [dob, setDob] = useState("");
   const [gender, setGender] = useState("Male");
 
-  const [loading, setLoading] = useState("");
-  const [success, setSuccess] = useState("");
-  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+  const [status, setStatus] = useState(""); // success | exists | error
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading("CREATING ACCOUNT...");
+    setLoading(true);
+    setMessage("");
+    setStatus("");
 
     try {
       const formdata = new FormData();
@@ -35,9 +37,10 @@ const Signup = () => {
         formdata
       );
 
-      setLoading("");
-      setSuccess(response.data.message);
+      setMessage("✅ " + response.data.message);
+      setStatus("success");
 
+      // clear form
       setFullName("");
       setUsername("");
       setEmail("");
@@ -46,27 +49,36 @@ const Signup = () => {
       setDob("");
       setGender("Male");
 
-      setTimeout(() => setSuccess(""), 4000);
-
     } catch (err) {
-      setLoading("");
-      setError("REGISTRATION FAILED");
+      const msg = err.response?.data?.message?.toLowerCase();
+
+      if (msg && msg.includes("already")) {
+        setMessage("⚠️ User already exists. Try logging in.");
+        setStatus("exists");
+      } else {
+        setMessage("❌ Signup failed. Please try again.");
+        setStatus("error");
+      }
     }
+
+    setLoading(false);
+  };
+
+  // =========================
+  // MESSAGE COLOR
+  // =========================
+  const getColor = () => {
+    if (status === "success") return "green";
+    if (status === "exists") return "#B8860B";
+    if (status === "error") return "red";
+    return "#000";
   };
 
   return (
-    <div
-      style={{
-        background: "#fff",
-        minHeight: "100vh",
-        color: "#000"
-      }}
-    >
+    <div style={{ background: "#fff", minHeight: "100vh", color: "#000" }}>
 
-      {/* CENTER WRAPPER */}
       <div className="container d-flex justify-content-center align-items-center vh-100">
 
-        {/* 🧱 CARD */}
         <div
           className="card p-4 shadow"
           style={{
@@ -79,36 +91,23 @@ const Signup = () => {
           }}
         >
 
-          {/* TITLE */}
-          <h3
-            className="text-center mb-2"
-            style={{
-              letterSpacing: "3px",
-              fontWeight: "800"
-            }}
-          >
+          <h3 className="text-center mb-2" style={{ letterSpacing: "3px", fontWeight: "800" }}>
             MEMBER REGISTRATION
           </h3>
 
-          <p
-            className="text-center mb-4"
-            style={{
-              color: "#B8860B",
-              fontSize: "12px",
-              letterSpacing: "2px"
-            }}
-          >
+          <p className="text-center mb-4" style={{ color: "#B8860B", fontSize: "12px" }}>
             CREATE YOUR SACRED ACCESS
           </p>
 
-          {/* STATUS */}
-          {loading && <p style={{ color: "#B8860B" }}>{loading}</p>}
-          {success && <p style={{ color: "green" }}>{success}</p>}
-          {error && <p style={{ color: "red" }}>{error}</p>}
+          {/* STATUS MESSAGE */}
+          {message && (
+            <p style={{ color: getColor(), textAlign: "center" }}>
+              {message}
+            </p>
+          )}
 
           <form onSubmit={handleSubmit}>
 
-            {/* ROW 1 */}
             <div className="row">
               <div className="col-md-6">
                 <input
@@ -133,7 +132,6 @@ const Signup = () => {
               </div>
             </div>
 
-            {/* ROW 2 */}
             <div className="row">
               <div className="col-md-6">
                 <input
@@ -158,7 +156,6 @@ const Signup = () => {
               </div>
             </div>
 
-            {/* PHONE */}
             <input
               type="tel"
               placeholder="Phone Number"
@@ -168,7 +165,6 @@ const Signup = () => {
               required
             />
 
-            {/* DOB + GENDER */}
             <div className="row">
               <div className="col-md-6">
                 <input
@@ -193,10 +189,10 @@ const Signup = () => {
               </div>
             </div>
 
-            {/* SUBMIT */}
             <button
               type="submit"
               className="btn w-100"
+              disabled={loading}
               style={{
                 backgroundColor: "#B8860B",
                 color: "#fff",
@@ -204,7 +200,7 @@ const Signup = () => {
                 letterSpacing: "2px"
               }}
             >
-              CREATE ACCOUNT
+              {loading ? "CREATING ACCOUNT..." : "CREATE ACCOUNT"}
             </button>
 
             <p className="text-center mt-3" style={{ fontSize: "12px" }}>
