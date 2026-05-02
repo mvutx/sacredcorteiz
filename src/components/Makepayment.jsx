@@ -23,7 +23,26 @@ const Makepayment = () => {
 
   const img_url = "https://kivuti.alwaysdata.net/static/images/";
 
+  // =========================
+  // FORMAT PHONE NUMBER
+  // =========================
+  const formatPhoneNumber = (phone) => {
+    let formatted = phone.trim();
+
+    if (formatted.startsWith("07")) {
+      formatted = "254" + formatted.slice(1);
+    }
+
+    if (formatted.startsWith("+254")) {
+      formatted = formatted.slice(1);
+    }
+
+    return formatted;
+  };
+
+  // =========================
   // UPDATE QUANTITY
+  // =========================
   const updateQuantity = (id, delta) => {
     setProducts(prev =>
       prev.map(item =>
@@ -34,7 +53,9 @@ const Makepayment = () => {
     );
   };
 
+  // =========================
   // TOTAL
+  // =========================
   const totalCost = products.reduce(
     (acc, item) => acc + item.product_cost * (item.quantity || 1),
     0
@@ -51,9 +72,18 @@ const Makepayment = () => {
     setSuccess("");
     setError("");
 
+    // Validate number
+    if (!/^(\+?254|0)7\d{8}$/.test(number)) {
+      setError("Enter a valid Safaricom number (07XXXXXXXX or 254XXXXXXXXX)");
+      setLoading(false);
+      return;
+    }
+
     try {
+      const formattedPhone = formatPhoneNumber(number);
+
       const formdata = new FormData();
-      formdata.append("phone", number);
+      formdata.append("phone", formattedPhone);
       formdata.append("amount", finalTotal);
 
       const response = await axios.post(
@@ -90,7 +120,12 @@ const Makepayment = () => {
             <img
               src={img_url + item.product_photo}
               alt=""
-              style={{ height: 60, width: 60, objectFit: "cover", marginRight: 10 }}
+              style={{
+                height: 60,
+                width: 60,
+                objectFit: "cover",
+                marginRight: 10
+              }}
             />
 
             <div className="flex-grow-1">
@@ -151,7 +186,7 @@ const Makepayment = () => {
 
             <input
               className="form-control mb-3"
-              placeholder="254XXXXXXXXX"
+              placeholder="07XXXXXXXX"
               value={number}
               onChange={(e) => setNumber(e.target.value)}
               required
