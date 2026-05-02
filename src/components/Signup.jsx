@@ -1,13 +1,9 @@
 import axios from "axios";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { FcGoogle } from "react-icons/fc";
-import { FaApple } from "react-icons/fa";
-import logo from "../assets/logo.png.jpg"; 
 import Footer from "./Footer";
 
 const Signup = () => {
-  // form states
   const [fullname, setFullName] = useState("");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -16,15 +12,13 @@ const Signup = () => {
   const [dob, setDob] = useState("");
   const [gender, setGender] = useState("Male");
 
-  // status states
   const [loading, setLoading] = useState("");
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
 
-  // submit function
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading("Please wait... Registration in progress");
+    setLoading("CREATING ACCOUNT...");
 
     try {
       const formdata = new FormData();
@@ -43,9 +37,7 @@ const Signup = () => {
 
       setLoading("");
       setSuccess(response.data.message);
-      setTimeout(() => setError("") , 5000)
 
-      // clear form
       setFullName("");
       setUsername("");
       setEmail("");
@@ -54,34 +46,69 @@ const Signup = () => {
       setDob("");
       setGender("Male");
 
-      setTimeout(() => setSuccess(""), 5000);
+      setTimeout(() => setSuccess(""), 4000);
+
     } catch (err) {
       setLoading("");
-      setError(err.message);
+      setError("REGISTRATION FAILED");
     }
   };
 
   return (
-    <div className="signup-page">
-      
-      {/* ✅ LOGO TOP LEFT */}
-      <Link to="/">
-        <img src={logo} alt="logo" className="logo-top-left animated-logo" />
-      </Link>
+    <div
+      style={{
+        background: "#fff",
+        minHeight: "100vh",
+        color: "#000"
+      }}
+    >
 
+      {/* CENTER WRAPPER */}
       <div className="container d-flex justify-content-center align-items-center vh-100">
-        <div className="card p-4 shadow signup-card">
-          <h3 className="mb-3 text-center">
-            Sign up 
+
+        {/* 🧱 CARD */}
+        <div
+          className="card p-4 shadow"
+          style={{
+            backgroundColor: "#fff",
+            border: "1px solid #eee",
+            borderRadius: "0px",
+            color: "#000",
+            width: "100%",
+            maxWidth: "520px"
+          }}
+        >
+
+          {/* TITLE */}
+          <h3
+            className="text-center mb-2"
+            style={{
+              letterSpacing: "3px",
+              fontWeight: "800"
+            }}
+          >
+            MEMBER REGISTRATION
           </h3>
 
-          {/* messages */}
-          {loading && <p className="text-warning">{loading}</p>}
-          {success && <p className="text-success">{success}</p>}
-          {error && <p className="text-danger">{error}</p>}
+          <p
+            className="text-center mb-4"
+            style={{
+              color: "#B8860B",
+              fontSize: "12px",
+              letterSpacing: "2px"
+            }}
+          >
+            CREATE YOUR SACRED ACCESS
+          </p>
+
+          {/* STATUS */}
+          {loading && <p style={{ color: "#B8860B" }}>{loading}</p>}
+          {success && <p style={{ color: "green" }}>{success}</p>}
+          {error && <p style={{ color: "red" }}>{error}</p>}
 
           <form onSubmit={handleSubmit}>
-            {/* Full name + Email */}
+
+            {/* ROW 1 */}
             <div className="row">
               <div className="col-md-6">
                 <input
@@ -106,7 +133,7 @@ const Signup = () => {
               </div>
             </div>
 
-            {/* Username + Password */}
+            {/* ROW 2 */}
             <div className="row">
               <div className="col-md-6">
                 <input
@@ -131,7 +158,7 @@ const Signup = () => {
               </div>
             </div>
 
-            {/* Phone */}
+            {/* PHONE */}
             <input
               type="tel"
               placeholder="Phone Number"
@@ -141,7 +168,7 @@ const Signup = () => {
               required
             />
 
-            {/* DOB + Gender */}
+            {/* DOB + GENDER */}
             <div className="row">
               <div className="col-md-6">
                 <input
@@ -166,28 +193,33 @@ const Signup = () => {
               </div>
             </div>
 
-            {/* Google */}
-            <button type="button" className="btn btn-light w-100 mb-3 social-btn">
-              <FcGoogle size={20} /> Sign up with Google
+            {/* SUBMIT */}
+            <button
+              type="submit"
+              className="btn w-100"
+              style={{
+                backgroundColor: "#B8860B",
+                color: "#fff",
+                fontWeight: "bold",
+                letterSpacing: "2px"
+              }}
+            >
+              CREATE ACCOUNT
             </button>
 
-            {/* Apple */}
-            <button type="button" className="btn btn-light w-100 mb-3 social-btn">
-              <FaApple size={20} /> Sign up with Apple
-            </button>
-
-            {/* Submit */}
-            <button type="submit" className="btn btn-primary w-100">
-              Sign up
-            </button>
-
-            <p className="text-center mt-3">
-              Already have an account? <Link to="/signin">Sign in</Link>
+            <p className="text-center mt-3" style={{ fontSize: "12px" }}>
+              Already have an account?{" "}
+              <Link to="/signin" style={{ color: "#B8860B" }}>
+                Sign in
+              </Link>
             </p>
+
           </form>
+
         </div>
       </div>
-      <Footer/>
+
+      <Footer />
     </div>
   );
 };

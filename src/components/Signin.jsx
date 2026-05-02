@@ -1,17 +1,12 @@
 import axios from "axios";
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FcGoogle } from "react-icons/fc";
-import { FaApple } from "react-icons/fa";
-import logo from "../assets/logo.png.jpg"; // ✅ make sure path is correct
 import Footer from "./Footer";
 
 const Signin = () => {
-  // form states
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  // status states
   const [loading, setLoading] = useState("");
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
@@ -21,7 +16,7 @@ const Signin = () => {
   const handlesubmit = async (e) => {
     e.preventDefault();
 
-    setLoading("Please wait while we authenticate your account...");
+    setLoading("AUTHENTICATING...");
     setError("");
     setSuccess("");
 
@@ -38,90 +33,147 @@ const Signin = () => {
       setLoading("");
 
       if (response.data.user) {
-        setSuccess("Login successful ✅");
+        setSuccess("ACCESS GRANTED");
 
-        // store user
         localStorage.setItem("user", JSON.stringify(response.data.user));
 
         setTimeout(() => {
           navigate("/");
         }, 1000);
       } else {
-        setError("Login Failed. Please try again...");
+        setError("ACCESS DENIED");
       }
     } catch (err) {
       setLoading("");
-      setError("Oops, something went wrong. Try again...");
+      setError("SYSTEM ERROR");
     }
   };
 
   return (
-    <div className="signin-page">
+    <div
+      style={{
+        background: "#fff",
+        minHeight: "100vh",
+        color: "#000",
+        display: "flex",
+        flexDirection: "column"
+      }}
+    >
 
-      {/* ✅ Animated Logo Top Left */}
-      <Link to="/">
-        <img src={logo} alt="logo" className="logo-top-left animated-logo" />
-      </Link>
+      {/* 🧠 CENTER */}
+      <div
+        style={{
+          flex: 1,
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center"
+        }}
+      >
+        <form
+          onSubmit={handlesubmit}
+          style={{
+            width: "320px",
+            textAlign: "center"
+          }}
+        >
 
-      <div className="container d-flex justify-content-center align-items-center vh-100">
-        <div className="card shadow p-4 signin-card">
-          <h3 className="text-center mb-3">Welcome Back</h3>
+          {/* TITLE */}
+          <h2
+            style={{
+              letterSpacing: "5px",
+              fontWeight: "900",
+              marginBottom: "10px",
+              color: "#000"
+            }}
+          >
+            MEMBER ACCESS
+          </h2>
 
-          {/* messages */}
-          {loading && <p className="text-warning">{loading}</p>}
-          {success && <p className="text-success">{success}</p>}
-          {error && <p className="text-danger">{error}</p>}
+          <p
+            style={{
+              color: "#B8860B",
+              fontSize: "11px",
+              letterSpacing: "3px",
+              marginBottom: "25px"
+            }}
+          >
+            ENTER YOUR CREDENTIALS
+          </p>
 
-          <form onSubmit={handlesubmit}>
-            {/* Email */}
-            <input
-              type="email"
-              placeholder="Email"
-              className="form-control mb-3"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
+          {/* STATUS */}
+          {loading && <p style={{ color: "#B8860B" }}>{loading}</p>}
+          {success && <p style={{ color: "green" }}>{success}</p>}
+          {error && <p style={{ color: "red" }}>{error}</p>}
 
-            {/* Password */}
-            <input
-              type="password"
-              placeholder="Password"
-              className="form-control mb-3"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
+          {/* EMAIL */}
+          <input
+            type="email"
+            placeholder="EMAIL"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            style={{
+              width: "100%",
+              padding: "12px",
+              marginBottom: "10px",
+              background: "transparent",
+              border: "1px solid #ddd",
+              color: "#000",
+              textAlign: "center",
+              letterSpacing: "2px",
+              outline: "none"
+            }}
+            required
+          />
 
-            {/* Forgot password */}
-            <div className="text-end mb-3">
-              <small>
-                <Link to="#">Forgot Password?</Link>
-              </small>
-            </div>
+          {/* PASSWORD */}
+          <input
+            type="password"
+            placeholder="PASSWORD"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            style={{
+              width: "100%",
+              padding: "12px",
+              marginBottom: "20px",
+              background: "transparent",
+              border: "1px solid #ddd",
+              color: "#000",
+              textAlign: "center",
+              letterSpacing: "2px",
+              outline: "none"
+            }}
+            required
+          />
 
-            {/* Google */}
-            <button type="button" className="btn btn-light w-100 mb-3 social-btn">
-              <FcGoogle size={20} /> Sign in with Google
-            </button>
+          {/* ENTER BUTTON */}
+          <button
+            type="submit"
+            style={{
+              width: "100%",
+              padding: "12px",
+              background: "#B8860B",
+              border: "none",
+              color: "#fff",
+              fontWeight: "900",
+              letterSpacing: "3px",
+              cursor: "pointer"
+            }}
+          >
+            ENTER
+          </button>
 
-            {/* Apple */}
-            <button type="button" className="btn btn-light w-100 mb-3 social-btn">
-              <FaApple size={20} /> Sign in with Apple
-            </button>
+          {/* SIGNUP LINK */}
+          <p style={{ marginTop: "20px", fontSize: "12px", color: "#555" }}>
+            NO ACCOUNT?{" "}
+            <Link to="/signup" style={{ color: "#B8860B" }}>
+              CREATE ONE
+            </Link>
+          </p>
 
-            {/* Submit */}
-            <button type="submit" className="btn btn-primary w-100">
-              Sign in
-            </button>
-
-            <p className="text-center mt-3">
-              Don’t have an account? <Link to="/signup">Sign up</Link>
-            </p>
-          </form>
-        </div>
+        </form>
       </div>
-      <Footer/>
+
+      <Footer />
     </div>
   );
 };
