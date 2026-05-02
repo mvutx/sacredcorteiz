@@ -86,7 +86,7 @@ const Getproducts = () => {
                     </h6>
 
                     <p className="product-description">
-                      {product.product_description?.slice(0, 40)}...
+                      {product.product_description?.slice(0, 40)}
                     </p>
 
                     <h6 className="product-price">
