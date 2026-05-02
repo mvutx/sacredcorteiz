@@ -111,7 +111,7 @@ const Carousel = () => {
 
         {/* Promo Banner */}
         <marquee className="bg-info mt-3 py-2 text-dark fw-bold">
-          ★ Limited Happy New Year 2026 Deal | Buy ksh 3,350 & Use Code YS.VUTI-75OFF for ksh 1,075 Discount
+          ★ Sacred Vanity 2026 Drop | Limited Access Pieces Only — No Restocks
         </marquee>
       </div>
     </section>
